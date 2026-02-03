@@ -5,14 +5,18 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Get user by Secret QR Address
-router.get('/by-sqr/:sqrAddress', authMiddleware, async (req, res) => {
+// Get user by Securet QR Address (URL-based)
+router.post('/by-sqr-url', authMiddleware, async (req, res) => {
   try {
-    const { sqrAddress } = req.params;
+    const { securetQRAddress } = req.body;
+
+    if (!securetQRAddress) {
+      return res.status(400).json({ error: '시큐렛 QR 주소가 필요합니다' });
+    }
 
     const user = await db.getAsync(
       'SELECT id, nickname, secret_qr_address FROM users WHERE secret_qr_address = ?',
-      [sqrAddress]
+      [securetQRAddress]
     );
 
     if (!user) {
@@ -32,21 +36,25 @@ router.get('/by-sqr/:sqrAddress', authMiddleware, async (req, res) => {
       isAlreadyFriend: !!friendship,
     });
   } catch (error) {
-    console.error('Get user by SQR error:', error);
+    console.error('Get user by SQR URL error:', error);
     res.status(500).json({ error: '사용자 조회 실패' });
   }
 });
 
-// Add friend by Secret QR Address
+// Add friend by Securet QR Address
 router.post('/add-friend', authMiddleware, async (req, res) => {
   try {
-    const { sqrAddress } = req.body;
+    const { securetQRAddress } = req.body;
     const myUserId = req.user.userId;
+
+    if (!securetQRAddress) {
+      return res.status(400).json({ error: '시큐렛 QR 주소가 필요합니다' });
+    }
 
     // Find friend
     const friend = await db.getAsync(
       'SELECT * FROM users WHERE secret_qr_address = ?',
-      [sqrAddress]
+      [securetQRAddress]
     );
 
     if (!friend) {

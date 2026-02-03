@@ -10,17 +10,28 @@ function AddFriend() {
   const [error, setError] = useState('');
   const [adding, setAdding] = useState(false);
   const navigate = useNavigate();
-  const sqr = searchParams.get('sqr');
+  
+  // Get full URL from query param or construct from token
+  const fullUrl = searchParams.get('url');
+  const token = searchParams.get('token');
 
   useEffect(() => {
-    if (sqr) {
+    if (fullUrl || token) {
       fetchUser();
     }
-  }, [sqr]);
+  }, [fullUrl, token]);
 
   const fetchUser = async () => {
     try {
-      const response = await api.get(`/friends/by-sqr/${sqr}`);
+      // If we have full URL, use it; otherwise construct from token
+      let securetUrl = fullUrl;
+      if (!securetUrl && token) {
+        securetUrl = `https://securet.kr/securet.php?token=${token}`;
+      }
+      
+      const response = await api.post('/friends/by-sqr-url', { 
+        securetQRAddress: securetUrl 
+      });
       setUser(response.data);
     } catch (err: any) {
       setError(err.response?.data?.error || '사용자를 찾을 수 없습니다');
@@ -32,7 +43,12 @@ function AddFriend() {
   const handleAddFriend = async () => {
     setAdding(true);
     try {
-      await api.post('/friends/add-friend', { sqrAddress: sqr });
+      let securetUrl = fullUrl;
+      if (!securetUrl && token) {
+        securetUrl = `https://securet.kr/securet.php?token=${token}`;
+      }
+      
+      await api.post('/friends/add-friend', { securetQRAddress: securetUrl });
       alert('친구 추가 완료!');
       navigate('/');
     } catch (err: any) {

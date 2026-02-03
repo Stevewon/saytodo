@@ -21,15 +21,19 @@ function QRScanner() {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           try {
+            // Check if it's a Securet URL
             const url = new URL(decodedText);
-            const sqr = url.searchParams.get('sqr');
             
-            if (sqr) {
+            if (url.hostname.includes('securet.kr')) {
+              // Extract token from URL
+              const token = url.searchParams.get('token');
+              
               scanner.stop().then(() => {
-                navigate(`/add-friend?sqr=${sqr}`);
+                // Pass the full URL
+                navigate(`/add-friend?url=${encodeURIComponent(decodedText)}`);
               });
             } else {
-              setError('유효하지 않은 QR 코드입니다');
+              setError('유효한 시큐렛 QR 코드가 아닙니다');
             }
           } catch (e) {
             setError('QR 코드 형식이 올바르지 않습니다');

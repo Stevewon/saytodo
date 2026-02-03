@@ -17,10 +17,14 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: '모든 필드를 입력해주세요' });
     }
 
-    // Validate Securet QR Address format
-    const sqrPattern = /^SQR-[A-Z0-9]{8}$/;
-    if (!sqrPattern.test(securetQRAddress)) {
-      return res.status(400).json({ error: '시큐렛 QR 주소 형식이 올바르지 않습니다 (SQR-XXXXXXXX)' });
+    // Validate Securet QR Address format (URL format)
+    try {
+      const url = new URL(securetQRAddress);
+      if (!url.hostname.includes('securet.kr') || !url.searchParams.has('token')) {
+        return res.status(400).json({ error: '유효한 시큐렛 QR 주소가 아닙니다' });
+      }
+    } catch (e) {
+      return res.status(400).json({ error: '시큐렛 QR 주소 형식이 올바르지 않습니다 (URL 형식이어야 합니다)' });
     }
 
     // Check if email exists
@@ -48,9 +52,8 @@ router.post('/register', async (req, res) => {
 
     const userId = uuidv4();
 
-    // Generate QR code as base64
-    const qrCodeData = `${process.env.APP_URL || 'http://localhost:5173'}/add-friend?sqr=${securetQRAddress}`;
-    const qrCodeBase64 = await QRCode.toDataURL(qrCodeData, {
+    // Generate QR code as base64 (using the full URL)
+    const qrCodeBase64 = await QRCode.toDataURL(securetQRAddress, {
       width: 300,
       margin: 2,
       color: {

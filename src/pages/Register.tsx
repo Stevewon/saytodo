@@ -85,20 +85,18 @@ function Register() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               <Key className="inline w-4 h-4 mr-1" />
-              시큐렛 QR 주소
+              시큐렛 QR 주소 (URL)
             </label>
-            <input
-              type="text"
+            <textarea
               value={securetQRAddress}
-              onChange={(e) => setSecuretQRAddress(e.target.value.toUpperCase())}
+              onChange={(e) => setSecuretQRAddress(e.target.value.trim())}
               required
-              placeholder="SQR-XXXXXXXX"
-              pattern="SQR-[A-Z0-9]{8}"
-              title="형식: SQR-XXXXXXXX (8자리 영문 대문자 또는 숫자)"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors font-mono"
+              placeholder="https://securet.kr/securet.php?key=idcard&nick=...&token=...&voip=null&os=android"
+              rows={4}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">
-              형식: SQR-XXXXXXXX (예: SQR-A1B2C3D4)
+              시큐렛 앱에서 생성된 전체 URL을 붙여넣으세요
             </p>
           </div>
 
