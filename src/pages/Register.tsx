@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Key } from 'lucide-react';
 import api from '../utils/api';
 import { useAuthStore } from '../store/authStore';
 
@@ -8,6 +8,7 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [securetQRAddress, setSecuretQRAddress] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +20,12 @@ function Register() {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/register', { email, password, nickname });
+      const response = await api.post('/auth/register', { 
+        email, 
+        password, 
+        nickname,
+        securetQRAddress 
+      });
       setAuth(response.data.user, response.data.token);
       navigate('/');
     } catch (err: any) {
@@ -37,7 +43,7 @@ function Register() {
             <UserPlus className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">회원가입</h1>
-          <p className="text-gray-600">시큐렛 QR 주소가 자동 생성됩니다</p>
+          <p className="text-gray-600">시큐렛 QR 주소를 입력하세요</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,6 +80,26 @@ function Register() {
               maxLength={20}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <Key className="inline w-4 h-4 mr-1" />
+              시큐렛 QR 주소
+            </label>
+            <input
+              type="text"
+              value={securetQRAddress}
+              onChange={(e) => setSecuretQRAddress(e.target.value.toUpperCase())}
+              required
+              placeholder="SQR-XXXXXXXX"
+              pattern="SQR-[A-Z0-9]{8}"
+              title="형식: SQR-XXXXXXXX (8자리 영문 대문자 또는 숫자)"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors font-mono"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              형식: SQR-XXXXXXXX (예: SQR-A1B2C3D4)
+            </p>
           </div>
 
           <div>

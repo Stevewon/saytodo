@@ -8,18 +8,19 @@ import db from '../db/database.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Generate unique Secret QR Address
-function generateSecretQRAddress() {
-  return `SQR-${uuidv4().substring(0, 8).toUpperCase()}`;
-}
-
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, nickname } = req.body;
+    const { email, password, nickname, securetQRAddress } = req.body;
 
-    if (!email || !password || !nickname) {
+    if (!email || !password || !nickname || !securetQRAddress) {
       return res.status(400).json({ error: '모든 필드를 입력해주세요' });
+    }
+
+    // Validate Securet QR Address format
+    const sqrPattern = /^SQR-[A-Z0-9]{8}$/;
+    if (!sqrPattern.test(securetQRAddress)) {
+      return res.status(400).json({ error: '시큐렛 QR 주소 형식이 올바르지 않습니다 (SQR-XXXXXXXX)' });
     }
 
     // Check if email exists
@@ -32,15 +33,23 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: '이미 존재하는 이메일입니다' });
     }
 
+    // Check if Securet QR Address exists
+    const existingQR = await db.getAsync(
+      'SELECT * FROM users WHERE secret_qr_address = ?',
+      [securetQRAddress]
+    );
+
+    if (existingQR) {
+      return res.status(400).json({ error: '이미 사용 중인 시큐렛 QR 주소입니다' });
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate Secret QR Address
-    const secretQRAddress = generateSecretQRAddress();
     const userId = uuidv4();
 
     // Generate QR code as base64
-    const qrCodeData = `${process.env.APP_URL || 'http://localhost:5173'}/add-friend?sqr=${secretQRAddress}`;
+    const qrCodeData = `${process.env.APP_URL || 'http://localhost:5173'}/add-friend?sqr=${securetQRAddress}`;
     const qrCodeBase64 = await QRCode.toDataURL(qrCodeData, {
       width: 300,
       margin: 2,
@@ -54,12 +63,12 @@ router.post('/register', async (req, res) => {
     await db.runAsync(
       `INSERT INTO users (id, email, password, nickname, secret_qr_address, qr_code) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [userId, email, hashedPassword, nickname, secretQRAddress, qrCodeBase64]
+      [userId, email, hashedPassword, nickname, securetQRAddress, qrCodeBase64]
     );
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId, email, nickname, secretQRAddress },
+      { userId, email, nickname, secretQRAddress: securetQRAddress },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
@@ -71,7 +80,7 @@ router.post('/register', async (req, res) => {
         id: userId,
         email,
         nickname,
-        secretQRAddress,
+        secretQRAddress: securetQRAddress,
         qrCode: qrCodeBase64,
       },
     });
