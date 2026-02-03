@@ -1,40 +1,34 @@
-import { useState } from 'react';
-import Home from './components/Home';
-import ChatRoom from './components/ChatRoom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './store/authStore';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import AddFriend from './pages/AddFriend';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'chat'>('home');
-  const [roomId, setRoomId] = useState<string>('');
-  const [username, setUsername] = useState<string>('');
-  const [roomName, setRoomName] = useState<string>('');
-
-  const handleJoinRoom = (id: string, name: string, user: string) => {
-    setRoomId(id);
-    setRoomName(name);
-    setUsername(user);
-    setCurrentView('chat');
-  };
-
-  const handleLeaveRoom = () => {
-    setCurrentView('home');
-    setRoomId('');
-    setUsername('');
-    setRoomName('');
-  };
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
-      {currentView === 'home' ? (
-        <Home onJoinRoom={handleJoinRoom} />
-      ) : (
-        <ChatRoom 
-          roomId={roomId} 
-          username={username}
-          roomName={roomName}
-          onLeave={handleLeaveRoom} 
+    <BrowserRouter>
+      <Routes>
+        <Route 
+          path="/login" 
+          element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
         />
-      )}
-    </div>
+        <Route 
+          path="/register" 
+          element={isAuthenticated ? <Navigate to="/" /> : <Register />} 
+        />
+        <Route 
+          path="/add-friend" 
+          element={isAuthenticated ? <AddFriend /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/" 
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

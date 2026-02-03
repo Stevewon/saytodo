@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface QRScannerProps {
-  onScanSuccess: (roomId: string) => void;
-}
-
-function QRScanner({ onScanSuccess }: QRScannerProps) {
+function QRScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const elementId = 'qr-reader';
+  const navigate = useNavigate();
+  const elementId = 'qr-scanner';
 
   const startScanning = async () => {
     try {
@@ -20,20 +18,15 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
 
       await scanner.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-          // QR 코드에서 roomId 추출
           try {
             const url = new URL(decodedText);
-            const roomId = url.searchParams.get('room');
+            const sqr = url.searchParams.get('sqr');
             
-            if (roomId) {
+            if (sqr) {
               scanner.stop().then(() => {
-                setIsScanning(false);
-                onScanSuccess(roomId);
+                navigate(`/add-friend?sqr=${sqr}`);
               });
             } else {
               setError('유효하지 않은 QR 코드입니다');
@@ -42,14 +35,11 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
             setError('QR 코드 형식이 올바르지 않습니다');
           }
         },
-        (errorMessage) => {
-          // 스캔 중 오류는 무시 (계속 스캔)
-        }
+        () => {}
       );
 
       setIsScanning(true);
     } catch (err) {
-      console.error('Scanner start error:', err);
       setError('카메라 권한을 허용해주세요');
       setIsScanning(false);
     }
@@ -59,9 +49,6 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
     if (scannerRef.current) {
       scannerRef.current.stop().then(() => {
         setIsScanning(false);
-        scannerRef.current = null;
-      }).catch(err => {
-        console.error('Scanner stop error:', err);
       });
     }
   };
@@ -69,24 +56,24 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(err => {
-          console.error('Cleanup error:', err);
-        });
+        scannerRef.current.stop();
       }
     };
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="text-center">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">QR 코드 스캔</h2>
+      
       <div 
         id={elementId} 
-        className="w-full rounded-lg overflow-hidden mb-4"
+        className="mx-auto rounded-lg overflow-hidden mb-4"
         style={{ minHeight: isScanning ? '300px' : '0' }}
       />
       
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 w-full">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+          <AlertCircle className="w-5 h-5" />
           <span className="text-sm">{error}</span>
         </div>
       )}
@@ -94,7 +81,7 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
       {!isScanning ? (
         <button
           onClick={startScanning}
-          className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg flex items-center justify-center gap-2"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-lg"
         >
           <Camera className="w-5 h-5" />
           스캔 시작
@@ -102,15 +89,11 @@ function QRScanner({ onScanSuccess }: QRScannerProps) {
       ) : (
         <button
           onClick={stopScanning}
-          className="w-full bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 shadow-lg"
+          className="bg-red-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 shadow-lg"
         >
           스캔 중지
         </button>
       )}
-      
-      <p className="mt-4 text-sm text-gray-600 text-center">
-        QR 코드를 카메라에 비춰주세요
-      </p>
     </div>
   );
 }
