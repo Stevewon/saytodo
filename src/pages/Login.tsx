@@ -35,7 +35,7 @@ function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">시큐릿 메신저</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">시큐렛 메신저</h1>
           <p className="text-gray-600">QR 기반 보안 채팅</p>
         </div>
 

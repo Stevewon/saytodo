@@ -256,7 +256,7 @@ const PORT = process.env.PORT || 3001;
 
 initDatabase().then(() => {
   httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Secret QR Chat Server running on port ${PORT}`);
+    console.log(`🚀 Securet QR Chat Server running on port ${PORT}`);
   });
 }).catch(err => {
   console.error('Failed to initialize database:', err);

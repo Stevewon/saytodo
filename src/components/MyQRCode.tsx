@@ -8,14 +8,14 @@ function MyQRCode() {
     if (!user?.qrCode) return;
     
     const link = document.createElement('a');
-    link.download = `secret-qr-${user.secretQRAddress}.png`;
+    link.download = `securet-qr-${user.secretQRAddress}.png`;
     link.href = user.qrCode;
     link.click();
   };
 
   return (
     <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">내 시큐릿 QR 코드</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">내 시큐렛 QR 코드</h2>
       <p className="text-gray-600 mb-6">이 QR 코드를 공유하여 친구를 추가하세요</p>
       
       <div className="bg-white p-6 rounded-xl shadow-lg inline-block mb-6">

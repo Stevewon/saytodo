@@ -37,7 +37,7 @@ function Register() {
             <UserPlus className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">회원가입</h1>
-          <p className="text-gray-600">시큐릿 QR 주소가 자동 생성됩니다</p>
+          <p className="text-gray-600">시큐렛 QR 주소가 자동 생성됩니다</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
