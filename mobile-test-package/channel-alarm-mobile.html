@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Channel Alarm - Mobile View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            gap: 40px;
+            max-width: 1400px;
+            align-items: center;
+        }
+        
+        /* iPhone Frame */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #fff;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Info Panel */
+        .info-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .info-panel h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .info-panel .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .feature {
+            margin-bottom: 24px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .icon {
+            font-size: 24px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .stat {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .phone-frame {
+                width: 100%;
+                max-width: 375px;
+                height: 90vh;
+                max-height: 812px;
+            }
+            
+            .info-panel {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Phone Frame -->
+        <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+                <iframe src="https://4000-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai"></iframe>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <h1>📣 Channel Alarm</h1>
+            <p class="subtitle">1대 멀티 알람 메신저</p>
+            
+            <div class="feature">
+                <div class="feature-title">
+                    <span class="icon">👥</span>
+                    <span>채널 생성 & 초대</span>
+                </div>
+                <div class="feature-desc">
+                    자기만의 채널을 만들고 초대 코드로 지인들을 초대하세요
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-title">
+                    <span class="icon">🎤</span>
+                    <span>음성 메시지</span>
+                </div>
+                <div class="feature-desc">
+                    음성을 녹음해서 채널 멤버들에게 일괄 전송
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-title">
+                    <span class="icon">🎥</span>
+                    <span>영상 공유</span>
+                </div>
+                <div class="feature-desc">
+                    간단한 영상이나 유튜브 링크를 공유
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-title">
+                    <span class="icon">🔔</span>
+                    <span>푸시 알림</span>
+                </div>
+                <div class="feature-desc">
+                    일반 전화처럼 모든 멤버에게 즉시 알림
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">핵심 기능</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">화면</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">메시지 타입</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">완성도</div>
+                </div>
+            </div>
+            
+            <a href="https://4000-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai" 
+               class="button" target="_blank">
+                전체 화면으로 보기 →
+            </a>
+        </div>
+    </div>
+</body>
+</html>
