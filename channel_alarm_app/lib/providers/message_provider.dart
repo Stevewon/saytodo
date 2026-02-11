@@ -6,6 +6,9 @@ class MessageProvider with ChangeNotifier {
   final Map<String, List<Message>> _channelMessages = {};
   bool _isLoading = false;
   
+  // 새 메시지 콜백 (전화 알람 트리거용)
+  Function(Message)? onNewMessage;
+  
   bool get isLoading => _isLoading;
   
   // 채널의 메시지 목록 가져오기
@@ -44,6 +47,11 @@ class MessageProvider with ChangeNotifier {
         _channelMessages[channelId] = [];
       }
       _channelMessages[channelId]!.add(message);
+      
+      // 🔥 새 메시지 수신 시 자동으로 전화 알람 트리거!
+      if (onNewMessage != null && senderId != 'current_user') {
+        onNewMessage!(message);
+      }
       
       _isLoading = false;
       notifyListeners();
@@ -96,5 +104,33 @@ class MessageProvider with ChangeNotifier {
       ];
       notifyListeners();
     }
+  }
+  
+  // 🔥 실시간 메시지 수신 시뮬레이션 (테스트용)
+  void simulateIncomingMessage(String channelId, String channelName) {
+    final message = Message(
+      id: const Uuid().v4(),
+      channelId: channelId,
+      senderId: 'other_user',
+      senderName: '채널 소유자',
+      type: MessageType.voice,
+      content: '긴급 알림! 지금 바로 확인해주세요!',
+      mediaUrl: 'https://example.com/urgent.mp3',
+      duration: 10,
+      createdAt: DateTime.now(),
+      readBy: ['other_user'],
+    );
+    
+    if (_channelMessages[channelId] == null) {
+      _channelMessages[channelId] = [];
+    }
+    _channelMessages[channelId]!.add(message);
+    
+    // 🔥 즉시 전화 알람 트리거!
+    if (onNewMessage != null) {
+      onNewMessage!(message);
+    }
+    
+    notifyListeners();
   }
 }

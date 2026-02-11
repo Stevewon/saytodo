@@ -54,6 +54,23 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           ],
         ),
         actions: [
+          // 🔥 전화 알람 테스트 버튼
+          IconButton(
+            icon: const Icon(Icons.phone, color: Colors.green),
+            tooltip: '전화 알람 테스트',
+            onPressed: () {
+              messageProvider.simulateIncomingMessage(
+                widget.channel.id,
+                widget.channel.name,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('📞 새 메시지가 도착했습니다! 전화 알람이 울립니다!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
           // 공유 버튼
           IconButton(
             icon: const Icon(Icons.share),

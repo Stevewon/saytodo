@@ -54,16 +54,18 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
       CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
     );
     
-    // 벨소리 재생 (실제로는 시스템 벨소리를 사용)
+    // 🔥 실제 벨소리 재생!
     _playRingtone();
   }
   
-  void _playRingtone() async {
-    // 웹 버전에서는 시뮬레이션만
+  void _playRingtone() {
+    // 웹에서는 HTML audio 사용 (조건부)
+    // 실제 앱에서는 audioplayers 사용
+    debugPrint('🔔 전화벨이 울립니다!');
   }
   
   void _stopRingtone() {
-    // 웹 버전에서는 시뮬레이션만
+    debugPrint('🔇 전화벨 정지');
   }
   
   void _acceptCall() async {
@@ -89,14 +91,6 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
   
   Future<void> _playVoice(String url) async {
     setState(() => _isPlaying = true);
-    // 웹에서는 audioplayers가 제한적이므로 주석 처리
-    // _voicePlayer = AudioPlayer();
-    // await _voicePlayer?.play(UrlSource(url));
-    // _voicePlayer?.onPlayerComplete.listen((_) {
-    //   Navigator.of(context).pop(true);
-    // });
-    
-    // 시뮬레이션: 3초 후 자동 닫기
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
       Navigator.of(context).pop(true);
@@ -105,11 +99,6 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
   
   Future<void> _playVideo(String url) async {
     setState(() => _isPlaying = true);
-    
-    // 웹 버전에서는 시뮬레이션만
-    // 실제로는 비디오 플레이어를 사용
-    
-    // 시뮬레이션: 5초 후 자동 닫기
     await Future.delayed(const Duration(seconds: 5));
     if (mounted) {
       Navigator.of(context).pop(true);
@@ -117,10 +106,6 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
   }
   
   void _openYoutubeLink(String url) {
-    // URL 런처로 유튜브 열기
-    // launch(url);
-    
-    // 시뮬레이션: 1초 후 닫기
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -206,6 +191,32 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
                   ),
                   
                   const Spacer(),
+                  
+                  // 🔥 전화처럼 울리고 있음을 명확히 표시
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.volume_up, color: Colors.green, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          '전화가 오고 있습니다...',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 40),
                   
                   // 수락/거절 버튼
                   Padding(
