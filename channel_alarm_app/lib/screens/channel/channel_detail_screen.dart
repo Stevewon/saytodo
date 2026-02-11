@@ -7,7 +7,6 @@ import '../../models/message_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/message_provider.dart';
 import '../message/send_message_screen.dart';
-import '../../services/call_notification_service.dart';
 
 class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
@@ -23,23 +22,8 @@ class ChannelDetailScreen extends StatefulWidget {
 
 class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   @override
-  void initState() {
-    super.initState();
-    // 샘플 메시지 로드
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final messageProvider = Provider.of<MessageProvider>(context, listen: false);
-      if (auth.currentUser != null) {
-        messageProvider.loadSampleMessages(widget.channel.id, auth.currentUser!.id);
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final messageProvider = Provider.of<MessageProvider>(context);
-    final messages = messageProvider.getChannelMessages(widget.channel.id);
     
     return Scaffold(
       appBar: AppBar(
@@ -65,8 +49,9 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               );
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('📞 새 메시지가 도착했습니다! 전화 알람이 울립니다!'),
-                  duration: Duration(seconds: 2),
+                  content: Text('📞 전화 알람이 울립니다!'),
+                  duration: Duration(seconds: 1),
+                  backgroundColor: Colors.green,
                 ),
               );
             },
@@ -103,117 +88,142 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       ),
       body: Column(
         children: [
-          // 메시지 목록
+          // 🔥 채팅 없음 - 깔끔한 화면
           Expanded(
-            child: messages.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.message, size: 64, color: Colors.grey[400]),
-                        const SizedBox(height: 16),
-                        Text(
-                          '아직 메시지가 없습니다',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '첫 메시지를 보내보세요!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    reverse: true,  // 최신 메시지가 아래로
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[messages.length - 1 - index];
-                      return _buildMessageCard(message, authProvider.currentUser!.id);
-                    },
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_active,
+                    size: 80,
+                    color: Colors.grey[300],
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    widget.channel.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${widget.channel.memberIds.length}명의 멤버',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  // 테스트 버튼 크게
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      messageProvider.simulateIncomingMessage(
+                        widget.channel.id,
+                        widget.channel.name,
+                      );
+                    },
+                    icon: const Icon(Icons.phone, size: 28),
+                    label: const Text(
+                      '전화 알람 테스트',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '아래 버튼으로 알림을 전송하세요',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           
-          // 하단 액션 버튼들
+          // 하단 전송 버튼들 (크게!)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, -2),
+                  blurRadius: 8,
+                  offset: const Offset(0, -4),
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: _buildActionButton(
-                    context,
-                    icon: Icons.mic,
-                    label: '음성',
-                    color: Colors.blue,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SendMessageScreen(
-                            channel: widget.channel,
-                            messageType: MessageType.voice,
-                          ),
+                // 음성 버튼
+                _buildBigActionButton(
+                  context,
+                  icon: Icons.mic,
+                  label: '음성 메시지 전송',
+                  color: Colors.blue,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SendMessageScreen(
+                          channel: widget.channel,
+                          messageType: MessageType.voice,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildActionButton(
-                    context,
-                    icon: Icons.videocam,
-                    label: '영상',
-                    color: Colors.red,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SendMessageScreen(
-                            channel: widget.channel,
-                            messageType: MessageType.video,
-                          ),
+                const SizedBox(height: 12),
+                // 영상 버튼
+                _buildBigActionButton(
+                  context,
+                  icon: Icons.videocam,
+                  label: '영상 메시지 전송',
+                  color: Colors.red,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SendMessageScreen(
+                          channel: widget.channel,
+                          messageType: MessageType.video,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildActionButton(
-                    context,
-                    icon: Icons.link,
-                    label: '링크',
-                    color: Colors.green,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SendMessageScreen(
-                            channel: widget.channel,
-                            messageType: MessageType.youtube,
-                          ),
+                const SizedBox(height: 12),
+                // 링크 버튼
+                _buildBigActionButton(
+                  context,
+                  icon: Icons.link,
+                  label: '유튜브 링크 전송',
+                  color: Colors.green,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SendMessageScreen(
+                          channel: widget.channel,
+                          messageType: MessageType.youtube,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -223,7 +233,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     );
   }
   
-  Widget _buildActionButton(
+  Widget _buildBigActionButton(
     BuildContext context, {
     required IconData icon,
     required String label,
@@ -232,22 +242,24 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   }) {
     return Material(
       color: color.withOpacity(0.1),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: color, size: 32),
-              const SizedBox(height: 4),
+              const SizedBox(width: 12),
               Text(
                 label,
                 style: TextStyle(
                   color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
               ),
             ],
@@ -255,137 +267,6 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         ),
       ),
     );
-  }
-  
-  Widget _buildMessageCard(Message message, String currentUserId) {
-    final isMe = message.senderId == currentUserId;
-    
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: InkWell(
-        onTap: () {
-          // 메시지 클릭 시 전화 알람 시뮬레이션
-          _testIncomingCall(message);
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75,
-          ),
-          decoration: BoxDecoration(
-            color: isMe
-                ? Theme.of(context).colorScheme.primaryContainer
-                : Theme.of(context).colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 보낸 사람
-              if (!isMe)
-                Text(
-                  message.senderName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              if (!isMe) const SizedBox(height: 4),
-              
-              // 메시지 타입 아이콘
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _getMessageIcon(message.type),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      message.content,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-              
-              // 시간
-              const SizedBox(height: 4),
-              Text(
-                _formatTime(message.createdAt),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                ),
-              ),
-              
-              // 테스트 힌트
-              if (!isMe)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    '👆 탭하여 전화 알람 테스트',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Colors.grey[500],
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  
-  // 전화 알람 테스트 함수
-  void _testIncomingCall(Message message) {
-    String messageType;
-    switch (message.type) {
-      case MessageType.voice:
-        messageType = 'voice';
-        break;
-      case MessageType.video:
-        messageType = 'video';
-        break;
-      case MessageType.youtube:
-        messageType = 'youtube';
-        break;
-      default:
-        messageType = 'voice';
-    }
-    
-    // 전화 알람 표시
-    CallNotificationService().showIncomingCallNotification(
-      channelName: widget.channel.name,
-      senderName: message.senderName,
-      messageType: messageType,
-      mediaUrl: message.mediaUrl,
-      youtubeUrl: message.content,
-    );
-  }
-  
-  Icon _getMessageIcon(MessageType type) {
-    switch (type) {
-      case MessageType.voice:
-        return const Icon(Icons.mic, size: 16, color: Colors.blue);
-      case MessageType.video:
-        return const Icon(Icons.videocam, size: 16, color: Colors.red);
-      case MessageType.youtube:
-        return const Icon(Icons.play_circle, size: 16, color: Colors.red);
-      case MessageType.text:
-        return const Icon(Icons.message, size: 16, color: Colors.grey);
-    }
-  }
-  
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-    
-    if (diff.inMinutes < 1) return '방금 전';
-    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
-    if (diff.inDays < 1) return '${diff.inHours}시간 전';
-    return '${diff.inDays}일 전';
   }
   
   void _showShareDialog(BuildContext context) {
