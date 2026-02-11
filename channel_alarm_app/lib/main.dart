@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/channel_provider.dart';
 import 'providers/message_provider.dart';
+import 'providers/schedule_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/channel/channel_list_screen.dart';
 import 'config/theme.dart';
 import 'services/call_notification_service.dart';
 import 'models/message_model.dart';
+import 'models/scheduled_alarm_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ChannelProvider()),
         ChangeNotifierProvider(create: (_) => MessageProvider()),
+        ChangeNotifierProvider(create: (_) => ScheduleProvider()),
       ],
       child: MaterialApp(
         title: 'Channel Alarm',
@@ -44,8 +47,12 @@ class _MyAppState extends State<MyApp> {
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
         navigatorKey: _navigatorKey,
-        home: Consumer2<AuthProvider, MessageProvider>(
-          builder: (context, auth, messageProvider, _) {
+        home: Builder(
+          builder: (context) {
+            final auth = Provider.of<AuthProvider>(context);
+            final messageProvider = Provider.of<MessageProvider>(context, listen: false);
+            final scheduleProvider = Provider.of<ScheduleProvider>(context, listen: false);
+            
             // 전화 알림 서비스 초기화
             if (auth.isAuthenticated) {
               CallNotificationService().initialize(context);
@@ -69,11 +76,36 @@ class _MyAppState extends State<MyApp> {
                 
                 // 즉시 전화 알람 표시!
                 CallNotificationService().showIncomingCallNotification(
-                  channelName: 'Channel', // 실제로는 채널 이름 전달
+                  channelName: 'Channel',
                   senderName: message.senderName,
                   messageType: messageType,
                   mediaUrl: message.mediaUrl,
                   youtubeUrl: message.content,
+                );
+              };
+              
+              // 🔥 예약된 알람 트리거 시 자동으로 전화 알람!
+              scheduleProvider.onAlarmTriggered = (ScheduledAlarm alarm) {
+                String messageType;
+                switch (alarm.type) {
+                  case ScheduleType.voice:
+                    messageType = 'voice';
+                    break;
+                  case ScheduleType.video:
+                    messageType = 'video';
+                    break;
+                  case ScheduleType.youtube:
+                    messageType = 'youtube';
+                    break;
+                }
+                
+                // 예약 시간에 자동으로 전화 알람!
+                CallNotificationService().showIncomingCallNotification(
+                  channelName: alarm.channelName,
+                  senderName: alarm.ownerName,
+                  messageType: messageType,
+                  mediaUrl: alarm.mediaUrl,
+                  youtubeUrl: alarm.content,
                 );
               };
             }

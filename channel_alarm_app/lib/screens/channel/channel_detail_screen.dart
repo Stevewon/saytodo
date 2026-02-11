@@ -6,7 +6,9 @@ import '../../models/channel_model.dart';
 import '../../models/message_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/message_provider.dart';
+import '../../providers/schedule_provider.dart';
 import '../message/send_message_screen.dart';
+import '../schedule/schedule_alarm_screen.dart';
 
 class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
@@ -24,6 +26,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final messageProvider = Provider.of<MessageProvider>(context);
+    final scheduleProvider = Provider.of<ScheduleProvider>(context);
+    final schedules = scheduleProvider.getChannelSchedules(widget.channel.id);
     
     return Scaffold(
       appBar: AppBar(
@@ -90,68 +94,51 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         children: [
           // 🔥 채팅 없음 - 깔끔한 화면
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.notifications_active,
-                    size: 80,
-                    color: Colors.grey[300],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    widget.channel.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+            child: schedules.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.notifications_active,
+                          size: 80,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          widget.channel.name,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          '${widget.channel.memberIds.length}명의 멤버',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          '예약된 알람이 없습니다',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${widget.channel.memberIds.length}명의 멤버',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // 테스트 버튼 크게
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      messageProvider.simulateIncomingMessage(
-                        widget.channel.id,
-                        widget.channel.name,
-                      );
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: schedules.length,
+                    itemBuilder: (context, index) {
+                      final schedule = schedules[index];
+                      return _buildScheduleCard(schedule, scheduleProvider);
                     },
-                    icon: const Icon(Icons.phone, size: 28),
-                    label: const Text(
-                      '전화 알람 테스트',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    '아래 버튼으로 알림을 전송하세요',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
           
           // 하단 전송 버튼들 (크게!)
@@ -169,66 +156,143 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             ),
             child: Column(
               children: [
-                // 음성 버튼
-                _buildBigActionButton(
-                  context,
-                  icon: Icons.mic,
-                  label: '음성 메시지 전송',
-                  color: Colors.blue,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SendMessageScreen(
-                          channel: widget.channel,
-                          messageType: MessageType.voice,
+                // 🔥 알람 예약 버튼 (가장 중요!)
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ScheduleAlarmScreen(
+                            channel: widget.channel,
+                          ),
                         ),
+                      );
+                    },
+                    icon: const Icon(Icons.alarm_add, size: 32),
+                    label: const Text(
+                      '알람 예약하기',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // 테스트 버튼 (작게)
+                TextButton.icon(
+                  onPressed: () {
+                    messageProvider.simulateIncomingMessage(
+                      widget.channel.id,
+                      widget.channel.name,
                     );
                   },
+                  icon: const Icon(Icons.phone, size: 20),
+                  label: const Text('즉시 테스트 (전화 알람)'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.grey[600],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                // 영상 버튼
-                _buildBigActionButton(
-                  context,
-                  icon: Icons.videocam,
-                  label: '영상 메시지 전송',
-                  color: Colors.red,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SendMessageScreen(
-                          channel: widget.channel,
-                          messageType: MessageType.video,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildScheduleCard(dynamic schedule, dynamic scheduleProvider) {
+    final remainingTime = schedule.remainingTime;
+    final hours = remainingTime.inHours;
+    final minutes = remainingTime.inMinutes % 60;
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: schedule.color.withOpacity(0.3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(schedule.icon, color: schedule.color, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        schedule.typeLabel,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: schedule.color,
                         ),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                // 링크 버튼
-                _buildBigActionButton(
-                  context,
-                  icon: Icons.link,
-                  label: '유튜브 링크 전송',
-                  color: Colors.green,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => SendMessageScreen(
-                          channel: widget.channel,
-                          messageType: MessageType.youtube,
+                      Text(
+                        '${schedule.scheduledTime.year}년 ${schedule.scheduledTime.month}월 ${schedule.scheduledTime.day}일 ${schedule.scheduledTime.hour}:${schedule.scheduledTime.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    scheduleProvider.cancelSchedule(widget.channel.id, schedule.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('예약이 취소되었습니다'),
+                        backgroundColor: Colors.orange,
                       ),
                     );
                   },
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.alarm, color: Colors.green, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    hours > 0 
+                        ? '$hours시간 $minutes분 후 알람'
+                        : '$minutes분 후 알람',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
