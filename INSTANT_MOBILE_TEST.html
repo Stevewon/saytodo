@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Channel Alarm 모바일 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 30px;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .test-button.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .test-button .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-box li {
+            padding: 8px 0;
+            color: #333;
+        }
+        
+        .info-box li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+        }
+        
+        .download-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        
+        .download-link:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Channel Alarm</h1>
+        <div class="subtitle">1대 멀티 알람 메신저 - 모바일 테스트</div>
+        
+        <a href="https://4000-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai" 
+           class="test-button" 
+           target="_blank">
+            <span class="emoji">🚀</span>
+            즉시 테스트 시작 (전체 화면)
+        </a>
+        
+        <a href="https://8080-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai/channel-alarm-mobile.html" 
+           class="test-button secondary" 
+           target="_blank">
+            <span class="emoji">📱</span>
+            모바일 최적화 버전
+        </a>
+        
+        <div class="info-box">
+            <h3>🎯 핵심 기능</h3>
+            <ul>
+                <li>구글 간단 가입 (Google 로그인)</li>
+                <li>채널 생성 및 6자리 초대 코드</li>
+                <li>초대 코드로 지인 초대</li>
+                <li>음성 메시지 전송</li>
+                <li>영상 메시지 전송</li>
+                <li>유튜브 링크 공유</li>
+                <li>채널 멤버 전체 알림</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>📲 PWA 설치 방법</h3>
+            <ul>
+                <li><strong>Android:</strong> Chrome 메뉴 → "홈 화면에 추가"</li>
+                <li><strong>iOS:</strong> Safari 공유 버튼 → "홈 화면에 추가"</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>🔥 테스트 순서</h3>
+            <ul>
+                <li>1. Google 로그인 → 계속하기</li>
+                <li>2. "채널 만들기" 클릭</li>
+                <li>3. 채널 이름/설명 입력</li>
+                <li>4. 초대 코드 확인 (FAM123 형식)</li>
+                <li>5. 음성/영상/링크 전송 테스트</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><strong>📦 소스 다운로드</strong></p>
+            <a href="https://github.com/Stevewon/saytodo/raw/main/Channel-Alarm-Complete-Backup-20260211_160110.zip" 
+               class="download-link">
+                전체 프로젝트 (1.3MB)
+            </a>
+            <a href="https://github.com/Stevewon/saytodo/raw/main/Channel-Alarm-Mobile-20260211_160117.zip" 
+               class="download-link">
+                모바일 테스트 (34KB)
+            </a>
+            <br><br>
+            <p style="font-size: 0.9em; color: #999;">
+                ⚠️ 샌드박스 제약으로 APK를 직접 생성할 수 없지만,<br>
+                웹 버전으로 모든 기능을 완벽하게 테스트할 수 있습니다!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
