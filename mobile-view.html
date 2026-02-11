@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SayToDo - 모바일 뷰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .mobile-frame::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .mobile-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 12px;
+            color: #6366F1;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-panel li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .info-panel li:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #6366F1;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-frame {
+                width: 100%;
+                max-width: 375px;
+                height: auto;
+                aspect-ratio: 375 / 812;
+            }
+
+            .info-panel {
+                position: static;
+                margin-top: 20px;
+                max-width: 100%;
+            }
+
+            body {
+                flex-direction: column;
+            }
+        }
+
+        .button-group {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #6366F1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #4F46E5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        button.secondary {
+            background: #8B5CF6;
+        }
+
+        button.secondary:hover {
+            background: #7C3AED;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="mobile-screen">
+            <iframe src="https://3000-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai" 
+                    allow="microphone; camera"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>📱 SayToDo 모바일 뷰</h3>
+        <ul>
+            <li><span class="badge">✅</span> iPhone 13 Pro 크기</li>
+            <li><span class="badge">✅</span> 375 x 812px</li>
+            <li><span class="badge">✅</span> 터치 최적화</li>
+            <li><span class="badge">✅</span> 실시간 동작</li>
+        </ul>
+
+        <div class="button-group">
+            <button onclick="window.open('https://3000-i831dov1p3qmbwxmdvsyx-5634da27.sandbox.novita.ai', '_blank')">
+                전체화면
+            </button>
+            <button class="secondary" onclick="location.reload()">
+                새로고침
+            </button>
+        </div>
+
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
+            <p style="font-size: 12px; color: #666;">
+                💡 <strong>팁:</strong> 프레임 안을 클릭하고 스크롤하면 앱을 직접 사용할 수 있습니다!
+            </p>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <p style="font-size: 12px; color: #666;">
+                🎯 <strong>테스트 순서:</strong><br>
+                1. Google 로그인 버튼 클릭<br>
+                2. 홈 화면에서 Todo 확인<br>
+                3. 음성 녹음 버튼 클릭<br>
+                4. 녹음 시작 테스트
+            </p>
+        </div>
+    </div>
+</body>
+</html>
